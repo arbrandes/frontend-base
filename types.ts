@@ -60,6 +60,9 @@ export interface OptionalSiteConfig {
   externalLinkUrlOverrides: string[],
   mfeConfigApiUrl: string | null,
 
+  // Paragon
+  paragonThemeUrls: ParagonThemeUrls,
+
   // Cookies
   accessTokenCookieName: string,
   languagePreferenceCookieName: string,
@@ -77,6 +80,33 @@ export interface OptionalSiteConfig {
 }
 
 export type SiteConfig = RequiredSiteConfig & Partial<OptionalSiteConfig>;
+
+// These types should arguably live in @openedx/paragon.
+export interface ParagonThemeBaseUrl {
+  url: string,
+}
+
+export interface ParagonThemeBaseUrls {
+  urls: {
+    default: string,
+    brandOverride: string,
+  },
+}
+
+export interface ParagonThemeDefaults {
+  light?: string,
+  dark?: string,
+}
+
+export type ParagonThemeVariants = Record<string, ParagonThemeBaseUrl | ParagonThemeBaseUrls>;
+
+export type ParagonThemeCore = ParagonThemeBaseUrl | ParagonThemeBaseUrls;
+
+export interface ParagonThemeUrls {
+  core?: ParagonThemeCore,
+  defaults?: Partial<ParagonThemeDefaults>,
+  variants?: ParagonThemeVariants,
+}
 
 export interface User {
   administrator: boolean,
