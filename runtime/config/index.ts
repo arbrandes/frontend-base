@@ -142,6 +142,9 @@ let config: SiteConfig = {
   // Backends
   lmsBaseUrl: '',
 
+  // Paragon
+  paragonThemeUrls: {},
+
   custom: {
     appId: '',
   },
@@ -281,9 +284,7 @@ export function getActiveRouteRoles() {
 const activeWidgetRoles: Record<string, number> = {};
 
 export function addActiveWidgetRole(role: string) {
-  if (activeWidgetRoles[role] === undefined) {
-    activeWidgetRoles[role] = 0;
-  }
+  activeWidgetRoles[role] ??= 1;
   activeWidgetRoles[role] += 1;
   publish(ACTIVE_ROLES_CHANGED);
 }

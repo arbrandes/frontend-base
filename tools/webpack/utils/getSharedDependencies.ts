@@ -11,7 +11,7 @@ export default function getSharedDependencies({ isShell }: { isShell: boolean })
       eager: isShell,
     },
     '@openedx/paragon': {
-      requiredVersion: '^22.0.0',
+      requiredVersion: '^23.0.0',
       eager: isShell,
     },
     '@openedx/frontend-base': {
