@@ -272,8 +272,7 @@ const config: App = {
       relatedId: 'slot-showcase.widgetOptions.child2',
       op: WidgetOperationTypes.OPTIONS,
       options: {
-        title: (<Title title="Bar" op="WidgetOperationTypes.OPTIONS" />
-        ),
+        title: (<Title title="Bar" op="WidgetOperationTypes.OPTIONS" />),
       }
     },
   ]
