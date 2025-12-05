@@ -13,7 +13,13 @@ import {
 import CombinedAppProvider from './CombinedAppProvider';
 import ErrorBoundary from './ErrorBoundary';
 import SiteContext from './SiteContext';
-import { useSiteEvent } from './hooks';
+import { SELECTED_THEME_VARIANT_KEY } from './constants';
+import {
+  useParagonTheme,
+  useSiteEvent,
+  useTrackColorSchemeChoice
+} from './hooks';
+import { paragonThemeActions } from './reducers';
 
 interface SiteProviderProps {
   children: ReactNode,
@@ -37,6 +43,7 @@ interface SiteProviderProps {
  * - An error boundary as described above.
  * - An `SiteContext` provider for React context data.
  * - IntlProvider for @edx/frontend-i18n internationalization
+ * - A theme manager for Paragon.
  *
  * @param {Object} props
  * @memberof module:React
@@ -58,11 +65,27 @@ export default function SiteProvider({ children }: SiteProviderProps) {
     setLocale(getLocale());
   });
 
+  useTrackColorSchemeChoice();
+  const [paragonThemeState, paragonThemeDispatch] = useParagonTheme();
+
   const siteContextValue = useMemo(() => ({
     authenticatedUser,
     siteConfig,
-    locale
-  }), [authenticatedUser, siteConfig, locale]);
+    locale,
+    paragonTheme: {
+      state: paragonThemeState,
+      setThemeVariant: (themeVariant: string) => {
+        paragonThemeDispatch(paragonThemeActions.setParagonThemeVariant(themeVariant));
+
+        // Persist selected theme variant to localStorage.
+        window.localStorage.setItem(SELECTED_THEME_VARIANT_KEY, themeVariant);
+      },
+    },
+  }), [authenticatedUser, siteConfig, locale, paragonThemeState, paragonThemeDispatch]);
+
+  if (!paragonThemeState?.isThemeLoaded) {
+    return null;
+  }
 
   return (
     <IntlProvider locale={locale} messages={getMessages()}>
