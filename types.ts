@@ -81,14 +81,8 @@ export interface OptionalSiteConfig {
 
 export type SiteConfig = RequiredSiteConfig & Partial<OptionalSiteConfig>;
 
-// These types should arguably live in @openedx/paragon.
-export interface ParagonThemeBaseUrl {
-  url: string,
-}
-
-export interface ParagonThemeBaseUrls {
+export interface ParagonThemeUrlsCommon {
   urls: {
-    default: string,
     brandOverride: string,
   },
 }
@@ -98,12 +92,10 @@ export interface ParagonThemeDefaults {
   dark?: string,
 }
 
-export type ParagonThemeVariants = Record<string, ParagonThemeBaseUrl | ParagonThemeBaseUrls>;
-
-export type ParagonThemeCore = ParagonThemeBaseUrl | ParagonThemeBaseUrls;
+export type ParagonThemeVariants = Record<string, ParagonThemeUrlsCommon>;
 
 export interface ParagonThemeUrls {
-  core?: ParagonThemeCore,
+  core?: ParagonThemeUrlsCommon,
   defaults?: Partial<ParagonThemeDefaults>,
   variants?: ParagonThemeVariants,
 }

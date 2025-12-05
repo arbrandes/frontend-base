@@ -23,7 +23,7 @@ import useParagonThemeVariants from './useParagonThemeVariants';
 *
 * Returns the default theme variant, or `undefined` if no valid theme variant is found.
 */
-export const getDefaultThemeVariant = (themeVariants: ParagonThemeVariants, themeDefaults: ParagonThemeDefaults = {}) => {
+export const getDefaultThemeVariant = (themeVariants: ParagonThemeVariants | undefined, themeDefaults: ParagonThemeDefaults = {}) => {
   if (!themeVariants) {
     return undefined;
   }
@@ -129,7 +129,7 @@ const useParagonTheme = () => {
   });
 
   // respond to system preference changes with regard to `prefers-color-scheme: dark`.
-  const handleDarkModeSystemPreferenceChange = useCallback((prefersDarkMode) => {
+  const handleDarkModeSystemPreferenceChange = useCallback((prefersDarkMode: boolean) => {
     // Ignore system preference change if the theme variant is already set in localStorage.
     if (localStorage.getItem(SELECTED_THEME_VARIANT_KEY)) {
       return;
@@ -140,9 +140,9 @@ const useParagonTheme = () => {
     } else if (!prefersDarkMode && themeVariantDefaults?.light) {
       dispatch(paragonThemeActions.setParagonThemeVariant(themeVariantDefaults.light));
     } else {
-      logError(`Could not set theme variant based on system preference (prefers dark mode: ${prefersDarkMode})`, themeVariantDefaults, themeVariants);
+      logError(`Could not set theme variant based on system preference (prefers dark mode: ${prefersDarkMode})`);
     }
-  }, [themeVariantDefaults, themeVariants]);
+  }, [themeVariantDefaults]);
 
   // load the theme variant(s) CSS
   useParagonThemeVariants({

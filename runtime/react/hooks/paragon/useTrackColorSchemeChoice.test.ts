@@ -23,7 +23,7 @@ describe('useTrackColorSchemeChoice', () => {
   afterEach(() => {
     mockAddEventListener.mockClear();
     mockRemoveEventListener.mockClear();
-    sendTrackEvent.mockClear();
+    jest.mocked(sendTrackEvent).mockClear();
   });
 
   it('sends dark preferred color schema event if query matches', async () => {
