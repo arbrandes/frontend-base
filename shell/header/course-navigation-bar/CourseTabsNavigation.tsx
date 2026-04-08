@@ -8,17 +8,8 @@ import messages from './messages';
 import { isClientRoute } from './utils';
 import './course-tabs-navigation.scss';
 
-const stripOrigin = (url: string): string => {
-  // If URL is absolute, extract the pathname; otherwise, return the original string
-  try {
-    if (/^https?:\/\//.test(url)) {
-      return new URL(url).pathname;
-    }
-    return url;
-  } catch {
-    return url;
-  }
-};
+// Tab URLs from the course_home API are always absolute.
+const stripOrigin = (url: string): string => new URL(url).pathname;
 
 const getActiveTabId = (pathname: string, tabs: CourseTab[]): string | null => {
   let activeTab: CourseTab | null = null;
@@ -44,7 +35,7 @@ const CourseTabsNavigation = () => {
   const { courseId = '' } = useParams();
   const intl = useIntl();
 
-  const { data = { tabs: [], isMasquerading: false }, isLoading } = useQuery({
+  const { data = { tabs: [] }, isLoading } = useQuery({
     queryKey: ['org.openedx.frontend.app.header.course-meta', courseId],
     queryFn: () => getCourseHomeCourseMetadata(courseId),
     retry: 2,
@@ -53,16 +44,24 @@ const CourseTabsNavigation = () => {
 
   const { tabs } = data;
 
+  const resolvedTabs = useMemo(
+    () => tabs.map(tab => {
+      const pathname = stripOrigin(tab.url);
+      return { ...tab, clientPath: isClientRoute(pathname) ? pathname : null };
+    }),
+    [tabs]
+  );
+
   const currentTab = useMemo(
-    () => tabs && tabs.length > 0 ? getActiveTabId(location.pathname, tabs) : null,
-    [location.pathname, tabs]
+    () => resolvedTabs.length > 0 ? getActiveTabId(location.pathname, resolvedTabs) : null,
+    [location.pathname, resolvedTabs]
   );
 
   if (isLoading) {
     return <Skeleton className="lead mt-3" />;
   }
 
-  if (!courseId || !tabs || tabs.length === 0) {
+  if (!courseId || resolvedTabs.length === 0) {
     return null;
   }
 
@@ -75,23 +74,19 @@ const CourseTabsNavigation = () => {
         <Navbar.Toggle aria-controls="course-nav" />
         <Navbar.Collapse id="course-nav">
           {
-            tabs.map((tab: CourseTab) => {
-              const pathname = stripOrigin(tab.url);
-              const clientRoute = isClientRoute(pathname);
-              return (
-                <Nav.Item key={tab.tabId}>
-                  <Nav.Link
-                    {...(clientRoute
-                      ? { to: pathname, as: Link }
-                      : { href: tab.url }
-                    )}
-                    active={tab.tabId === currentTab}
-                  >
-                    {tab.title}
-                  </Nav.Link>
-                </Nav.Item>
-              );
-            })
+            resolvedTabs.map(tab => (
+              <Nav.Item key={tab.tabId}>
+                <Nav.Link
+                  {...(tab.clientPath
+                    ? { to: tab.clientPath, as: Link }
+                    : { href: tab.url }
+                  )}
+                  active={tab.tabId === currentTab}
+                >
+                  {tab.title}
+                </Nav.Link>
+              </Nav.Item>
+            ))
           }
         </Navbar.Collapse>
         <Slot id="org.openedx.frontend.slot.header.courseNavigationBar.extraContent.v1" />
