@@ -1,3 +1,4 @@
+import { matchPath } from 'react-router-dom';
 import { getActiveRoles, getProvidedData, getUrlByRouteRole } from '../../../runtime';
 import { appId } from '../constants';
 
@@ -29,6 +30,6 @@ export function isClientRoute(pathname: string): boolean {
     const routePath = getUrlByRouteRole(role);
     return routePath !== null
       && routePath.startsWith('/')
-      && pathname.startsWith(routePath);
+      && matchPath({ path: routePath, end: false }, pathname) !== null;
   });
 }

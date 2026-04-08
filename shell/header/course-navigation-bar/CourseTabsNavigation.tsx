@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, matchPath, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Slot, useIntl } from '../../../runtime';
 import { CourseTab, getCourseHomeCourseMetadata } from './data/service';
@@ -8,26 +8,27 @@ import messages from './messages';
 import { isClientRoute } from './utils';
 import './course-tabs-navigation.scss';
 
-// Tab URLs from the course_home API are always absolute.
-const stripOrigin = (url: string): string => new URL(url).pathname;
+interface ResolvedTab extends CourseTab {
+  pathname: string,
+  clientPath: string | null,
+}
 
-const getActiveTabId = (pathname: string, tabs: CourseTab[]): string | null => {
-  let activeTab: CourseTab | null = null;
-  let maxLength = -1;
+// Returns the tabId of the tab whose pathname is the longest prefix match
+// against the current path. Uses react-router's matchPath for segment-aware
+// matching. For example, given tabs with paths /course/ (tabId: "outline")
+// and /course/dates/ (tabId: "dates"):
+//   /course/dates/foo  -> "dates"   (longest prefix match)
+//   /course/outline    -> "outline"
+//   /courseware         -> null      (not a segment boundary)
+const getActiveTabId = (currentPath: string, tabs: ResolvedTab[]): string | null => {
+  let best: ResolvedTab | null = null;
   for (const tab of tabs) {
-    const tabPath = stripOrigin(tab.url);
-    if (
-      pathname === tabPath
-      || (pathname.startsWith(tabPath.endsWith('/') ? tabPath : tabPath + '/') && tabPath.length > 1)
-      || (pathname.startsWith(tabPath) && tabPath !== '/' && tabPath.length > maxLength)
-    ) {
-      if (tabPath.length > maxLength) {
-        activeTab = tab;
-        maxLength = tabPath.length;
-      }
+    const match = matchPath({ path: `${tab.pathname}/*`, end: false }, currentPath);
+    if (match && (!best || tab.pathname.length > best.pathname.length)) {
+      best = tab;
     }
   }
-  return activeTab ? activeTab.tabId : null;
+  return best?.tabId ?? null;
 };
 
 const CourseTabsNavigation = () => {
@@ -44,10 +45,11 @@ const CourseTabsNavigation = () => {
 
   const { tabs } = data;
 
-  const resolvedTabs = useMemo(
+  const resolvedTabs: ResolvedTab[] = useMemo(
     () => tabs.map(tab => {
-      const pathname = stripOrigin(tab.url);
-      return { ...tab, clientPath: isClientRoute(pathname) ? pathname : null };
+      // Tab URLs from the course_home API are always absolute.
+      const pathname = new URL(tab.url).pathname;
+      return { ...tab, pathname, clientPath: isClientRoute(pathname) ? pathname : null };
     }),
     [tabs]
   );
