@@ -59,8 +59,7 @@ Add an optional ``provides`` field to the ``App`` interface::
 upon by the providing and consuming apps, and the value is whatever the
 consumer expects.  frontend-base stores this data and exposes it through a
 runtime function, but does not interpret it.  Any namespaced identifier can
-serve as a key - an app ID, slot ID, widget ID, or any other string in the
-ecosystem.
+serve as a key.
 
 A runtime helper would look something like::
 
@@ -76,9 +75,10 @@ Guidelines
    (as it does with routes and slots), a dedicated typed field on ``App`` is
    the right choice.
 
-2. Keys in ``provides`` should use an existing namespaced identifier from the
-   ecosystem (such as an app ID, slot ID, or widget ID).  This keeps the
-   namespace unambiguous and avoids ad-hoc naming.
+2. Keys in ``provides`` should be their own namespaced identifiers, not
+   duplicates of existing app, slot, or widget IDs.  This allows different
+   widgets or other entities to consume the same provided data independently,
+   without coupling the data's identity to a single consumer.
 
 3. The shape of the value under each key is a contract between the providing and
    consuming apps.  It is not enforced by frontend-base.  Consuming apps should
@@ -109,7 +109,7 @@ As a concrete illustration, the Instructor Dashboard app could declare::
     const config: App = {
       appId: 'org.openedx.frontend.app.instructor',
       provides: {
-        'org.openedx.frontend.widget.header.courseTabsNavigation.v1': {
+        'org.openedx.frontend.provides.courseNavigationRoles.v1': {
           courseNavigationRoles: ['org.openedx.frontend.role.instructor'],
         },
       },
