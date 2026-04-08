@@ -355,7 +355,7 @@ describe('mergeSiteConfig', () => {
   describe('getProvidedData', () => {
     it('should return empty array when no apps exist', () => {
       setSiteConfig({ ...defaultSiteConfig, apps: [] });
-      expect(getProvidedData('org.openedx.frontend.app.header')).toEqual([]);
+      expect(getProvidedData('org.openedx.frontend.provides.testKey.v1')).toEqual([]);
     });
 
     it('should return empty array when no apps provide data for the consumer', () => {
@@ -366,7 +366,7 @@ describe('mergeSiteConfig', () => {
           { appId: 'app-two' },
         ],
       });
-      expect(getProvidedData('org.openedx.frontend.app.header')).toEqual([]);
+      expect(getProvidedData('org.openedx.frontend.provides.testKey.v1')).toEqual([]);
     });
 
     it('should collect provided data from apps that declare it', () => {
@@ -376,19 +376,19 @@ describe('mergeSiteConfig', () => {
           {
             appId: 'app-one',
             provides: {
-              'org.openedx.frontend.app.header': { urlPattern: '/one/' },
+              'org.openedx.frontend.provides.testKey.v1': { urlPattern: '/one/' },
             },
           },
           {
             appId: 'app-two',
             provides: {
-              'org.openedx.frontend.app.header': { urlPattern: '/two/' },
+              'org.openedx.frontend.provides.testKey.v1': { urlPattern: '/two/' },
             },
           },
         ],
       });
 
-      const result = getProvidedData('org.openedx.frontend.app.header');
+      const result = getProvidedData('org.openedx.frontend.provides.testKey.v1');
       expect(result).toEqual([
         { urlPattern: '/one/' },
         { urlPattern: '/two/' },
@@ -402,17 +402,17 @@ describe('mergeSiteConfig', () => {
           {
             appId: 'app-one',
             provides: {
-              'org.openedx.frontend.app.header': { urlPattern: '/one/' },
-              'org.openedx.frontend.app.footer': { showBranding: true },
+              'org.openedx.frontend.provides.testKey.v1': { urlPattern: '/one/' },
+              'org.openedx.frontend.provides.otherKey.v1': { showBranding: true },
             },
           },
         ],
       });
 
-      const headerData = getProvidedData('org.openedx.frontend.app.header');
+      const headerData = getProvidedData('org.openedx.frontend.provides.testKey.v1');
       expect(headerData).toEqual([{ urlPattern: '/one/' }]);
 
-      const footerData = getProvidedData('org.openedx.frontend.app.footer');
+      const footerData = getProvidedData('org.openedx.frontend.provides.otherKey.v1');
       expect(footerData).toEqual([{ showBranding: true }]);
     });
 
@@ -424,14 +424,14 @@ describe('mergeSiteConfig', () => {
           {
             appId: 'app-two',
             provides: {
-              'org.openedx.frontend.app.header': { urlPattern: '/two/' },
+              'org.openedx.frontend.provides.testKey.v1': { urlPattern: '/two/' },
             },
           },
           { appId: 'app-three', config: { VALUE: 'test' } },
         ],
       });
 
-      const result = getProvidedData('org.openedx.frontend.app.header');
+      const result = getProvidedData('org.openedx.frontend.provides.testKey.v1');
       expect(result).toEqual([{ urlPattern: '/two/' }]);
     });
   });
