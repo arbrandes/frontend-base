@@ -102,41 +102,21 @@ the data is, by definition, outside frontend-base's domain.
 Course navigation bar example
 -----------------------------
 
-As a concrete illustration, the instructor app would declare::
+As a concrete illustration, the Instructor Dashboard app could declare::
 
     const config: App = {
       appId: 'org.openedx.frontend.app.instructor',
       provides: {
         'org.openedx.frontend.app.header': {
-          courseNavigationUrlPattern: /^\/instructor\//,
+          courseNavigationRoles: ['org.openedx.frontend.role.instructor'],
         },
       },
       routes: [...],
       slots: [...],
     };
 
-The header app would then collect ``provides`` entries keyed to its own
-``appId`` from all registered apps at runtime.  From this it derives which tab
-URLs can be navigated client-side, and uses a slot ``condition.callback`` to
-determine whether to render the course navigation bar at all::
-
-    // header app slot config
-    {
-      slotId: 'org.openedx.frontend.slot.header.courseNavigationBar.v1',
-      id: 'org.openedx.frontend.widget.header.courseTabsNavigation.v1',
-      op: WidgetOperationTypes.APPEND,
-      component: CourseTabsNavigation,
-      condition: {
-        callback: () => {
-          const providers = getProvidedData('org.openedx.frontend.app.header');
-          return providers.some(data =>
-            data.courseNavigationUrlPattern?.test(window.location.pathname)
-          );
-        },
-      },
-    }
-
-This replaces the hardcoded roles list in ``constants.ts`` with a dynamic
-check: the nav bar renders when the current URL matches a pattern provided by
-any registered app.  The ``condition.callback`` mechanism was designed for
-exactly this kind of dynamic evaluation.
+The header app collects ``provides`` entries keyed to its own ``appId`` from
+all registered apps at runtime.  From the provided roles it determines both
+when to render the navigation bar (by checking ``getActiveRoles()``) and which
+tab URLs can be navigated client-side (by resolving roles to route paths via
+``getUrlByRouteRole()``).

@@ -1,8 +1,8 @@
-import { getProvidedData } from '../../../runtime';
+import { getActiveRoles, getProvidedData, getUrlByRouteRole } from '../../../runtime';
 import { appId } from '../constants';
 
 interface CourseNavigationProviderData {
-  courseNavigationUrlPattern: RegExp,
+  courseNavigationRoles: string[],
 }
 
 function getProviders(): CourseNavigationProviderData[] {
@@ -10,19 +10,25 @@ function getProviders(): CourseNavigationProviderData[] {
     (data): data is CourseNavigationProviderData =>
       data !== null
       && typeof data === 'object'
-      && 'courseNavigationUrlPattern' in data
-      && (data as CourseNavigationProviderData).courseNavigationUrlPattern instanceof RegExp
+      && 'courseNavigationRoles' in data
+      && Array.isArray((data as CourseNavigationProviderData).courseNavigationRoles)
   );
+}
+
+function getProvidedRoles(): string[] {
+  return getProviders().flatMap(data => data.courseNavigationRoles);
 }
 
 export function isCourseNavigationRoute(): boolean {
-  return getProviders().some(
-    data => data.courseNavigationUrlPattern.test(window.location.pathname)
-  );
+  const activeRoles = getActiveRoles();
+  return getProvidedRoles().some(role => activeRoles.includes(role));
 }
 
 export function isClientRoute(pathname: string): boolean {
-  return getProviders().some(
-    data => data.courseNavigationUrlPattern.test(pathname)
-  );
+  return getProvidedRoles().some(role => {
+    const routePath = getUrlByRouteRole(role);
+    return routePath !== null
+      && routePath.startsWith('/')
+      && pathname.startsWith(routePath);
+  });
 }
