@@ -117,11 +117,11 @@ As a concrete illustration, the Instructor Dashboard app could declare::
       slots: [...],
     };
 
-The header app collects ``provides`` entries keyed to its own ``appId`` from
-all registered apps at runtime.  From the provided roles it determines both
-when to render the navigation bar (by checking ``getActiveRoles()``) and which
-tab URLs can be navigated client-side (by resolving roles to route paths via
-``getUrlByRouteRole()``).
+The header's course navigation bar widget collects ``provides`` entries keyed
+to its provides identifier from all registered apps.  From the provided roles
+it determines both when to render the navigation bar (by checking
+``getActiveRoles()``) and which tab URLs can be navigated client-side (by
+resolving roles to route paths via ``getUrlByRouteRole()``).
 
 
 Rejected alternatives
