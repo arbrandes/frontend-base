@@ -1,13 +1,13 @@
 import { matchPath } from 'react-router-dom';
 import { getActiveRoles, getProvidedData, getUrlByRouteRole } from '../../../runtime';
-import { appId } from '../constants';
+import { courseTabsNavigationWidgetId } from '../constants';
 
 interface CourseNavigationProviderData {
   courseNavigationRoles: string[],
 }
 
 function getProviders(): CourseNavigationProviderData[] {
-  return getProvidedData(appId).filter(
+  return getProvidedData(courseTabsNavigationWidgetId).filter(
     (data): data is CourseNavigationProviderData =>
       data !== null
       && typeof data === 'object'

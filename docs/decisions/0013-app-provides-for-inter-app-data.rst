@@ -55,15 +55,17 @@ Add an optional ``provides`` field to the ``App`` interface::
       provides?: Record<string, unknown>,
     }
 
-``provides`` is a flat key-value map where each key is the ``appId`` of the
-consuming app and the value is whatever that consumer expects.  frontend-base
-stores this data and exposes it through a runtime function, but does not
-interpret it.
+``provides`` is a flat key-value map where each key is an identifier agreed
+upon by the providing and consuming apps, and the value is whatever the
+consumer expects.  frontend-base stores this data and exposes it through a
+runtime function, but does not interpret it.  Any namespaced identifier can
+serve as a key - an app ID, slot ID, widget ID, or any other string in the
+ecosystem.
 
 A runtime helper would look something like::
 
-    // Returns all `provides` entries keyed to the given appId.
-    function getProvidedData(consumerAppId: string): Record<string, unknown>[]
+    // Returns all `provides` entries matching the given key.
+    function getProvidedData(key: string): unknown[]
 
 
 Guidelines
@@ -74,9 +76,9 @@ Guidelines
    (as it does with routes and slots), a dedicated typed field on ``App`` is
    the right choice.
 
-2. Keys in ``provides`` should be the ``appId`` of the consuming app.  This
-   keeps the namespace unambiguous and makes it easy for a consumer to discover
-   everything provided to it.
+2. Keys in ``provides`` should use an existing namespaced identifier from the
+   ecosystem (such as an app ID, slot ID, or widget ID).  This keeps the
+   namespace unambiguous and avoids ad-hoc naming.
 
 3. The shape of the value under each key is a contract between the providing and
    consuming apps.  It is not enforced by frontend-base.  Consuming apps should
@@ -107,7 +109,7 @@ As a concrete illustration, the Instructor Dashboard app could declare::
     const config: App = {
       appId: 'org.openedx.frontend.app.instructor',
       provides: {
-        'org.openedx.frontend.app.header': {
+        'org.openedx.frontend.widget.header.courseTabsNavigation.v1': {
           courseNavigationRoles: ['org.openedx.frontend.role.instructor'],
         },
       },
@@ -120,3 +122,38 @@ all registered apps at runtime.  From the provided roles it determines both
 when to render the navigation bar (by checking ``getActiveRoles()``) and which
 tab URLs can be navigated client-side (by resolving roles to route paths via
 ``getUrlByRouteRole()``).
+
+
+Rejected alternatives
+=====================
+
+Slot operations
+---------------
+
+Each app could register its own widget into the course navigation bar slot
+with an ``active`` condition on its role.  The ``OPTIONS`` operation can even
+carry arbitrary data to a widget via ``useWidgetOptions``.  However, the
+navigation bar needs to know which apps participate *before* it renders, in the
+slot ``condition.callback`` that decides whether to render at all.
+``useWidgetOptions`` is a React hook that only works inside a rendered
+component, so the data arrives too late for the condition check.
+
+The component could work around this by always mounting, reading options, and
+returning ``null`` when no apps have registered.  But this means the component
+and its hooks (including the API call to fetch course metadata) would run on
+every page, even where no app participates in the navigation bar.
+
+Hoisted providers
+-----------------
+
+Each app could register a React context provider exposing its role list, and
+the navigation bar could consume those contexts.  All app providers are already
+hoisted and combined into a single tree, so the data would be available.
+
+This was rejected because it is a heavy mechanism for passing a small piece of
+static data.  Each app would need a context, a provider component, and a
+consumer hook, and the header would need to aggregate across multiple contexts
+with no standard way to discover them.  Providers are the right tool when data
+changes over time and consumers need to re-render.  The course navigation roles
+are fixed at registration time and never change, making ``provides`` a more
+natural fit.
