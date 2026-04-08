@@ -1,5 +1,5 @@
 import { getProvidedData } from '../../../runtime';
-import { appId } from '../app';
+import { appId } from '../constants';
 
 interface CourseNavigationProviderData {
   courseNavigationUrlPattern: RegExp,

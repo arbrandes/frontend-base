@@ -14,8 +14,7 @@ import MobileNavLinks from './mobile/MobileNavLinks';
 import messages from '../Shell.messages';
 import CourseTabsNavigation from './course-navigation-bar/CourseTabsNavigation';
 import { isCourseNavigationRoute } from './course-navigation-bar/utils';
-
-export const appId = 'org.openedx.frontend.app.header';
+import { appId } from './constants';
 
 const config: App = {
   appId,
