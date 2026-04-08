@@ -111,7 +111,9 @@ describe('CourseTabsNavigation', () => {
     renderComponent(`/instructor-dashboard/${COURSE_ID}/course_info`, []);
 
     // Wait for the query to settle, then verify nothing rendered
-    await new Promise(resolve => { setTimeout(resolve, 50); });
+    await new Promise(resolve => {
+      setTimeout(resolve, 50);
+    });
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
   });
 
