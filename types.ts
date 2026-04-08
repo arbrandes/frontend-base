@@ -30,6 +30,7 @@ export interface App {
   providers?: AppProvider[],
   slots?: SlotOperation[],
   config?: AppConfig,
+  provides?: Record<string, unknown>,
 }
 
 // Site Config
