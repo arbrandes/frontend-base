@@ -13,10 +13,12 @@ import MobileNavLinks from './mobile/MobileNavLinks';
 
 import messages from '../Shell.messages';
 import CourseTabsNavigation from './course-navigation-bar/CourseTabsNavigation';
-import { activeRolesForCourseNavigationBar } from './course-navigation-bar/constants';
+import { isCourseNavigationRoute } from './course-navigation-bar/utils';
+
+export const appId = 'org.openedx.frontend.app.header';
 
 const config: App = {
-  appId: 'org.openedx.frontend.app.header',
+  appId,
   slots: [
     // Layouts
     {
@@ -143,7 +145,7 @@ const config: App = {
       op: WidgetOperationTypes.APPEND,
       component: CourseTabsNavigation,
       condition: {
-        active: activeRolesForCourseNavigationBar,
+        callback: () => isCourseNavigationRoute(),
       }
     }
   ]
